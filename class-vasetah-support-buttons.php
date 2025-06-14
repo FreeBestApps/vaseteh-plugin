@@ -9,8 +9,23 @@ class Vasetah_WhatsApp_Support {
         $this->options = $options['whatsapp'] ?? [];
         if (empty($this->options['phone_number'])) return;
 
+        // Read position and priority from settings, with defaults.
         $hook = $this->options['button_position'] ?? 'woocommerce_single_product_summary';
-        $priority = $this->options['button_priority'] ?? 35;
+        $priority = !empty($this->options['button_priority']) ? intval($this->options['button_priority']) : 35;
+
+        // Sanitize the hook to prevent security issues.
+        $allowed_hooks = [
+            'woocommerce_before_single_product_summary',
+            'woocommerce_single_product_summary',
+            'woocommerce_before_add_to_cart_form',
+            'woocommerce_before_add_to_cart_button',
+            'woocommerce_after_add_to_cart_button',
+            'woocommerce_after_add_to_cart_form',
+            'woocommerce_after_single_product_summary',
+        ];
+        if (!in_array($hook, $allowed_hooks)) {
+            $hook = 'woocommerce_single_product_summary'; // Fallback to a safe default
+        }
 
         add_action($hook, array($this, 'render_whatsapp_button'), $priority);
     }
@@ -23,7 +38,8 @@ class Vasetah_WhatsApp_Support {
         $button_text = esc_html($this->options['button_text'] ?? 'پشتیبانی در واتساپ');
         $button_color = esc_attr($this->options['button_color'] ?? '#25D366');
         
-        $template = $this->options['message_template'] ?? "سلام، در مورد محصول '{product_title}' سوال داشتم. \n {product_link}";
+        // Read message template from settings, with a default.
+        $template = $this->options['message_template'] ?? "سلام، در مورد محصول '{product_title}' سوال داشتم. \n{product_link}";
         $message = str_replace(
             ['{product_title}', '{product_link}'],
             [$product->get_name(), get_permalink($product->get_id())],
