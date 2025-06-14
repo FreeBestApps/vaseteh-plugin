@@ -3,7 +3,7 @@
 Plugin Name: واسطه (Vasetah)
 Plugin URI:  https://t.me/miuein
 Description: افزونه جامغه فروش بر مبنای واسطه گری
-Version:     2.0.0
+Version:     2.1.0
 Author:      معین کاظمی
 Author URI:  https://moein-kazemi.ir
 License:     GPL-2.0+
@@ -53,10 +53,11 @@ final class Vasetah_Plugin_Manager {
          require_once $plugin_path . 'includes/class-vasetah-price-tracker.php';
          new Vasetah_Price_Tracker($this->options);
       }
-
-        if (!empty($this->options['modules']['support_buttons'])) {
-            require_once $plugin_path . 'includes/class-vasetah-support-buttons.php';
-            new Vasetah_Support_Buttons($this->options);
+        
+        // Corrected module loading for WhatsApp support
+        if (!empty($this->options['modules']['whatsapp_support'])) { // The option key is 'whatsapp_support' in admin settings
+            require_once $plugin_path . 'includes/class-vasetah-whatsapp-support.php';
+            new Vasetah_WhatsApp_Support($this->options);
         }
     }
 
