@@ -5,6 +5,7 @@ class Vasetah_Quote_Handler {
 
     private $options;
     private $quote_rules;
+    private static $cart_contains_quote_product = null; // Cache the result
 
     public function __construct($options) {
         $this->options = $options;
@@ -53,10 +54,24 @@ class Vasetah_Quote_Handler {
     }
 
     private function cart_has_quote_product() {
-        if (!WC()->cart) return false;
-        foreach (WC()->cart->get_cart() as $cart_item) {
-            if ($this->is_quote_product($cart_item['product_id'])) return true;
+        // Optimization: Check the cart only once per request and cache the result.
+        if (self::$cart_contains_quote_product !== null) {
+            return self::$cart_contains_quote_product;
         }
+
+        if (!WC()->cart) {
+            self::$cart_contains_quote_product = false;
+            return false;
+        }
+
+        foreach (WC()->cart->get_cart() as $cart_item) {
+            if ($this->is_quote_product($cart_item['product_id'])) {
+                self::$cart_contains_quote_product = true;
+                return true;
+            }
+        }
+        
+        self::$cart_contains_quote_product = false;
         return false;
     }
     
