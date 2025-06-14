@@ -12,7 +12,7 @@ class Vasetah_WC_Quote_Gateway extends WC_Payment_Gateway {
     public function __construct() {
         $this->id                 = 'vasetah_quote_gateway';
         $this->method_title       = __('ثبت به عنوان پیش‌فاکتور (واسطه)', 'vasetah');
-        $this->method_description = __('این درگاه مجازی به مشتریان اجازه می‌دهد سفارش خود را به عنوان درخواست پیش‌فاکتور ثبت کنند.', 'vasetah');
+        $this->method_description = __('این درگاه مجازی به مشتریان اجازه می‌دهد سفارش خود را به عنوان درخواست پیش‌فاکتور ثبت کنند. پرداخت در این مرحله انجام نمی‌شود.', 'vasetah');
         $this->has_fields         = false;
         
         $this->init_form_fields();
@@ -38,8 +38,16 @@ class Vasetah_WC_Quote_Gateway extends WC_Payment_Gateway {
     
     public function process_payment($order_id) {
         $order = wc_get_order($order_id);
-        $order->payment_complete();
+
+        // Do not mark as "payment complete" for a quote request.
+        // This was incorrect as no payment is being made. The order status
+        // will be updated to "wc-vasetah-quote" by the Vasetah_Quote_Handler class.
+        // $order->payment_complete(); 
+
+        // Note: Stock is reduced here for the quote. This is a business decision.
+        // If you want to reduce stock only after quote confirmation, this line should be moved.
         $order->reduce_order_stock();
+
         WC()->cart->empty_cart();
 
         return ['result' => 'success', 'redirect' => $this->get_return_url($order)];
