@@ -1,13 +1,13 @@
 <?php
 /*
-Plugin Name: واسطه (Vasetah)
+Plugin Name: واسطه (vaseteh)
 Plugin URI:  https://t.me/miuein
-Description: افزونه جامغه فروش بر مبنای واسطه گری
+Description: افزونه جامع فروش بر مبنای واسطه گری
 Version:     2.1.0
 Author:      معین کاظمی
 Author URI:  https://moein-kazemi.ir
 License:     GPL-2.0+
-Text Domain: vasetah
+Text Domain: vaseteh
 Requires at least: 6.0
 Requires PHP: 7.4
 WC requires at least: 8.0
@@ -21,7 +21,7 @@ final class Vasetah_Plugin_Manager {
     private $options = [];
 
     private function __construct() {
-        $this->options = get_option('vasetah_settings', []);
+        $this->options = get_option('vaseteh_settings', []);
         
         add_action('plugins_loaded', array($this, 'init'));
     }
@@ -32,7 +32,7 @@ final class Vasetah_Plugin_Manager {
             return;
         }
         
-        load_plugin_textdomain('vasetah', false, dirname(plugin_basename(__FILE__)) . '/languages');
+        load_plugin_textdomain('vaseteh', false, dirname(plugin_basename(__FILE__)) . '/languages');
         
         $this->load_modules();
     }
@@ -40,24 +40,24 @@ final class Vasetah_Plugin_Manager {
     public function load_modules() {
         $plugin_path = plugin_dir_path(__FILE__);
         
-        require_once $plugin_path . 'includes/class-vasetah-admin-settings.php';
+        require_once $plugin_path . 'includes/class-vaseteh-admin-settings.php';
         new Vasetah_Admin_Settings();
 
         if (!empty($this->options['modules']['quote_system'])) {
-            require_once $plugin_path . 'includes/class-vasetah-quote-handler.php';
-            require_once $plugin_path . 'includes/class-vasetah-quote-gateway.php';
+            require_once $plugin_path . 'includes/class-vaseteh-quote-handler.php';
+            require_once $plugin_path . 'includes/class-vaseteh-quote-gateway.php';
             new Vasetah_Quote_Handler($this->options);
         }
 
         if (!empty($this->options['modules']['price_tracker'])) {
-         require_once $plugin_path . 'includes/class-vasetah-price-tracker.php';
-         new Vasetah_Price_Tracker($this->options);
-      }
-        
-        // Corrected module loading for WhatsApp support
-        if (!empty($this->options['modules']['whatsapp_support'])) { // The option key is 'whatsapp_support' in admin settings
-            require_once $plugin_path . 'includes/class-vasetah-whatsapp-support.php';
-            new Vasetah_WhatsApp_Support($this->options);
+            require_once $plugin_path . 'includes/class-vaseteh-price-tracker.php';
+            new Vasetah_Price_Tracker($this->options);
+        }
+
+        // Updated Support Button Module Loading
+        if (!empty($this->options['modules']['whatsapp_support'])) { // This ID comes from the checkbox in admin settings
+            require_once $plugin_path . 'includes/class-vaseteh-support-button.php'; // The new file name
+            new Vasetah_Support_Button($this->options); // The new class name
         }
     }
 
